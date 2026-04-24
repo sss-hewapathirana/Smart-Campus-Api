@@ -369,7 +369,7 @@ We use `ConcurrentHashMap` rather than `HashMap` because the per-request lifecyc
 
 HATEOAS (Hypermedia as the Engine of Application State) is the principle that API responses should include **navigational links** that tell the client what actions are available and where related resources can be found. It is considered a hallmark of mature RESTful design because it enables APIs to be **self-descriptive and discoverable**.
 
-Our Discovery endpoint at `GET /api/v1` returns a `_links` object containing URLs for rooms and sensors:
+This application Discovery endpoint at `GET /api/v1` returns a `_links` object containing URLs for rooms and sensors:
 
 ```json
 {
@@ -407,13 +407,13 @@ When returning a list of rooms from `GET /api/v1/rooms`, there is an important d
 - **Advantages**: The client receives all the data it needs in a **single request**. This eliminates the N+1 problem, reduces total latency, and simplifies the client-side code (no need for batch-fetching logic).
 - **Disadvantages**: Larger payload size. If rooms have many fields or very large nested data, this can consume more bandwidth.
 
-In our implementation, we return full Room objects because our data model is relatively compact (id, name, capacity, sensorIds), and the convenience of having all data in one response far outweighs the marginal bandwidth cost. For very large datasets, pagination (e.g., `?page=1&size=20`) would be the recommended approach to balance both concerns.
+This api implementation, api return full Room objects because our data model is relatively compact (id, name, capacity, sensorIds), and the convenience of having all data in one response far outweighs the marginal bandwidth cost. For very large datasets, pagination (e.g., `?page=1&size=20`) would be the recommended approach to balance both concerns.
 
 #### Question 2.2: DELETE Idempotency
 
 The HTTP specification states that `DELETE` **should be idempotent**, meaning that sending the same DELETE request multiple times should produce the same observable outcome as sending it once.
 
-In our implementation, DELETE is **effectively idempotent**. Here is what happens if a client sends `DELETE /api/v1/rooms/LIB-301` multiple times:
+in this api implementation, DELETE is **effectively idempotent**. Here is what happens if a client sends `DELETE /api/v1/rooms/LIB-301` multiple times:
 
 1. **First call**: The room exists and has no sensors. It is deleted from the data store. The server returns **204 No Content** — the room is gone.
 
@@ -449,7 +449,7 @@ The annotation effectively acts as a **contract** between the client and server,
 
 #### Question 3.2: @QueryParam vs Path-Based Filtering
 
-We implemented sensor filtering using `@QueryParam("type")` which produces URLs like:
+this api implements sensor filtering using `@QueryParam("type")` which produces URLs like:
 
 ```
 GET /api/v1/sensors?type=Temperature
@@ -556,7 +556,7 @@ This ensures that no internal implementation details ever leak to external consu
 
 #### Question 5.5: JAX-RS Filters vs Manual Logging
 
-We implement API observability using `ApiLoggingFilter`, which implements both `ContainerRequestFilter` and `ContainerResponseFilter`. This approach is vastly superior to manually inserting `Logger.info()` calls inside every resource method for several reasons:
+in this api implement API observability using `ApiLoggingFilter`, which implements both `ContainerRequestFilter` and `ContainerResponseFilter`. This approach is vastly superior to manually inserting `Logger.info()` calls inside every resource method for several reasons:
 
 1. **Single Point of Implementation**: The filter is written once and automatically applies to **every** request and response across the entire API. With manual logging, you would need to add identical logging statements to every single method in every resource class — duplicating code across potentially dozens of endpoints.
 
